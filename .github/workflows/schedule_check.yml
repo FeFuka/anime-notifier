@@ -14,6 +14,10 @@ jobs:
     # The type of server GitHub will lend us. The most common is a Linux Ubuntu machine.
     runs-on: ubuntu-latest
 
+    # Grant write permissions to the GITHUB_TOKEN so we can push changes to the repo.
+    permissions:
+      contents: write
+
     steps:
       # Step 1: Downloads your repository's code to the GitHub server.
       - name: Check out repository code
