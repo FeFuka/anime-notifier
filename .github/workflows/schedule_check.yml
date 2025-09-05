@@ -1,0 +1,47 @@
+name: Scheduled Anime Checker
+
+on:
+  schedule:
+    # '0 23 * * *' means "at 23:00 UTC", which corresponds to 8 PM in Brasília's timezone (UTC-3).
+    - cron: "0 23 * * *"
+
+  # This line adds a "Run workflow" button to the Action's page,
+  # allowing you to test it manually without waiting for the scheduled time.
+  workflow_dispatch:
+
+jobs:
+  run-python-script:
+    # The type of server GitHub will lend us. The most common is a Linux Ubuntu machine.
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Downloads your repository's code to the GitHub server.
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      # Step 2: Sets up the Python environment in the specified version.
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # Step 3: Installs the libraries listed in your requirements.txt file.
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Step 4: Runs our Python script.
+      - name: Run Python script
+        run: python anime_checker.py
+
+      # Step 5: Saves the changes made to the database file back to the repository.
+      - name: Commit and push if changed
+        run: |
+          # Configure git with the bot's identity
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          # Add the database file to the staging area
+          git add anime_tracker.db
+          # Commit the changes. If there are no changes, the '||' part prevents an error.
+          git commit -m "chore: Update anime database" || echo "No changes to commit"
+          # Push the commit back to the repository
+          git push
